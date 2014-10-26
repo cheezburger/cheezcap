@@ -163,6 +163,8 @@ class CheezCap {
 						call_user_func( array( $option, $method ), $data );
 					}
 		    	}
+
+		    	$this->trigger_action( $method );
 				
 				if ( $done )
 					call_user_func( $done, $data );
@@ -292,6 +294,30 @@ class CheezCap {
 		header( 'Content-disposition: attachment; filename=' . $filename );
 		echo serialize( $data );
 		exit();
+	}
+
+	function trigger_action( $method ){
+
+		switch( $method ){
+
+			case 'update':
+				do_action( 'cheezcap_update' );
+				break;
+
+			case 'reset':
+				do_action( 'cheezcap_reset' );
+				break;
+
+			case 'export':
+				do_action( 'cheezcap_export' );
+				break;
+
+			case 'import':
+				do_action( 'cheezcap_import' );
+				break;
+
+		}
+
 	}
 }
 
