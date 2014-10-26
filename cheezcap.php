@@ -319,6 +319,27 @@ class CheezCap {
 		}
 
 	}
+
+	/**
+	 * returns all of the cheezcap data
+	 *
+	 * @return \CheezCapImportData
+	 */
+	public function get_data(){
+
+		$options = $this->get_options();
+		$data = new CheezCapImportData();
+
+		foreach ( $options as $group ) {
+
+			foreach ( $group->options as $option ) {
+
+				call_user_func( array( $option, 'export' ), $data );
+			}
+		}
+
+		return $data;
+	}
 }
 
 /**
