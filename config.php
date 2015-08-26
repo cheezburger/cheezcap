@@ -19,6 +19,11 @@ function cap_get_options() {
 	return array(
 		new Group( 'First Group', 'firstGroup',
 			array(
+				new MediaOption(
+					'Choose default featured image if none is set',
+					'',
+					'feat_image_default'
+				),
 				new BooleanOption(
 					'Simple Boolean Example',
 					'This will create a simple true/false switch with default of "true".',
