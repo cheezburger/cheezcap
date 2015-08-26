@@ -313,3 +313,129 @@ function cap_serialize_export( $data ) {
 	echo serialize( $data );
 	exit();
 }
+
+/**
+ * Adds support for selecting images
+ * from media library.
+ *
+ *
+ *
+ * Class MediaOption
+ */
+class MediaOption extends Option {
+	var $options;
+
+	function MediaOption( $_name, $_desc, $_id, $_std = ''  ) {
+		$this->Option( $_name, $_desc, $_id, $_std );
+	}
+
+	function WriteHtml() {
+
+		/* Prereqs for loading the WP media-upload modal */
+		wp_enqueue_script('jquery');
+		wp_enqueue_script('media-upload');
+		wp_enqueue_script('thickbox');
+		wp_enqueue_style('thickbox');
+
+		/* Populate the default option or the saved one */
+		$stdText = $this->std;
+
+		$stdTextOption = get_option( $this->id );
+
+		if ( ! empty( $stdTextOption ) )
+			$stdText = $stdTextOption;
+		?>
+
+		<tr valign="top">
+			<th scope="row"><?php echo esc_html( $this->name ); ?></th>
+			<td>
+				<label for="<?php echo esc_attr( $this->id ); ?>">
+					<input type="button"  id="<?php echo esc_attr( 'btn_' . $this->id ); ?>" value="Open Media Library" />
+					<input type="hidden"  id="<?php echo esc_attr( $this->id ); ?>" name="<?php echo esc_attr( $this->id ); ?>" value="<?php echo esc_attr( $stdText ); ?>" size="40" />
+					<img id="<?php echo esc_attr( 'img_' . $this->id ); ?>" 	style="max-width:150px;" 	src="<?php echo esc_url( $stdText ); ?>" />
+				</label>
+			</td>
+		</tr>
+
+		<tr valign="top">
+			<td colspan=2>
+				<small><?php echo esc_html( $this->desc ); ?></small><hr />
+			</td>
+		</tr>
+
+		<script>
+			jQuery( document ).ready( function() {
+
+				/* Initialize the window object we'll need */
+				if( typeof( window.cheezcap ) === 'undefined' ) {
+					window.cheezcap = { editor_func_def : null, input_to_update : null, img_to_update : null };
+				}
+
+				/* Register the watch function for this option */
+				jQuery( '<?php echo esc_attr( '#btn_' . $this->id ); ?>' ).click( function() {
+
+					/* Save our window variables so the callback function knows what to do */
+					window.cheezcap.input_to_update = "<?php echo esc_attr( '#' . $this->id ); ?>";
+					window.cheezcap.img_to_update = "<?php echo esc_attr( "#img_" . $this->id ); ?>";
+
+					//formfield = jQuery( '<?php //echo esc_attr( '#input_' . $this->id ); ?>' ).attr( 'name' );
+
+					tb_show( '<?php echo esc_html( $this->name ); ?>', 'media-upload.php?type=image&amp;TB_iframe=true');
+
+					return false;
+				});
+
+				/* Register our window.send_to_editor function if it isn't already */
+				if( window.cheezcap.editor_func_def === null ) {
+
+					/* Set the "complete" flag */
+					window.cheezcap.editor_func_def = true;
+
+					/*
+					 * Callback fired by thickbox to update the elements referenced
+					 * in the window.cheezcap object with the selected media item
+					 */
+					window.send_to_editor = function(html) {
+
+						var not_img = false;
+
+						/* Get the img url */
+						var url = jQuery('img',html).attr('src');
+
+						/* Or if it's not an img */
+						if( typeof( url ) == 'undefined' ) {
+							url = jQuery(html).attr('href');
+							not_img = true;
+						}
+
+						jQuery( window.cheezcap.input_to_update ).val( url );
+
+						/* Show the image preview and hide input field */
+						if( !not_img ) {
+							jQuery( window.cheezcap.img_to_update ).attr( 'src', url );
+							jQuery( window.cheezcap.img_to_update).show();
+							jQuery( window.cheezcap.input_to_update).hide();
+						}
+
+						/* Show the input field and hide image element if previously used */
+						else {
+							jQuery( window.cheezcap.input_to_update ).attr( 'type', 'text' );
+							jQuery( window.cheezcap.input_to_update).show();
+							jQuery( window.cheezcap.img_to_update).hide();
+						}
+
+						tb_remove();
+					}
+				}
+			});
+		</script>
+	<?php
+	}
+
+	function get() {
+		$value = get_option( $this->id, $this->std );
+		if ( strtolower( $value ) == 'disabled' )
+			return false;
+		return $value;
+	}
+}
