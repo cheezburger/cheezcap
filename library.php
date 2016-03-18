@@ -111,13 +111,39 @@ class MediaOption extends Option {
 			$stdText = $stdTextOption;
 		?>
 
+		<style>
+
+			.media-label {
+				position: relative;
+			}
+
+			.delete-btn {
+				position: absolute;
+				top: 0px;
+				right: 0;
+				font-size: 16px;
+				height: 25px;
+				width: 25px;
+				background: rgba(178,178,178,0.9);
+				color: #fff;
+				text-align: center;
+				padding-top: 3px;
+			}
+
+			.delete-btn:hover {
+				color: #000;
+			}
+
+		</style>
+
 		<tr valign="top">
 			<th scope="row"><?php echo esc_html( $this->name ); ?></th>
 			<td>
-				<label for="<?php echo esc_attr( $this->id ); ?>">
+				<label class='media-label' for="<?php echo esc_attr( $this->id ); ?>">
 					<input type="button"  id="<?php echo esc_attr( 'btn_' . $this->id ); ?>" value="Open Media Library" />
 					<input type="hidden"  id="<?php echo esc_attr( $this->id ); ?>" name="<?php echo esc_attr( $this->id ); ?>" value="<?php echo esc_attr( $stdText ); ?>" size="40" />
 					<img id="<?php echo esc_attr( 'img_' . $this->id ); ?>" 	style="max-width:150px;" 	src="<?php echo esc_url( $stdText ); ?>" />
+					<?php $class = ( !empty( $stdText ) ) ? '' : 'hide'; ?><span class='delete-btn <?php echo $class; ?>' id='<?php echo esc_attr( 'delete_' . $this->id ); ?>'>X</span>
 				</label>
 			</td>
 		</tr>
@@ -189,9 +215,27 @@ class MediaOption extends Option {
 							jQuery( window.cheezcap.img_to_update).hide();
 						}
 
+						// Show the delete button
+						jQuery( '<?php echo '#delete_' . $this->id; ?>' ).removeClass( 'hide' );
+
 						tb_remove();
 					}
 				}
+
+				/* Remove the image */
+				jQuery( '<?php echo esc_attr( '#delete_' . $this->id ); ?>' ).click( function() {
+
+					// Clear the image
+					jQuery( '<?php echo '#img_' . $this->id; ?>' ).prop( 'src', '' );
+
+					// Clear the input
+					jQuery( '<?php echo 'input#' . $this->id; ?>' ).prop( 'value', '' );
+
+					// Hide the delete button
+					jQuery( '<?php echo '#delete_' . $this->id; ?>' ).addClass( 'hide' );
+
+					return false;
+				});
 			});
 		</script>
 	<?php
@@ -271,7 +315,7 @@ class MultiOption extends Option {
 
 	function get() {
 		$value = get_option( $this->id, $this->std );
-        	if ( strtolower( $value ) == 'disabled' )
+					if ( strtolower( $value ) == 'disabled' )
 			return false;
 		return $value;
 	}
@@ -289,7 +333,7 @@ class TextOption extends Option {
 		$stdText = $this->std;
 
 		$stdTextOption = get_option( $this->id );
-	        if ( ! empty( $stdTextOption ) )
+					if ( ! empty( $stdTextOption ) )
 			$stdText = $stdTextOption;
 
 		?>
@@ -310,7 +354,7 @@ class TextOption extends Option {
 		?>
 			</td>
 		</tr>
-                <tr valign="top"><td colspan="<?php echo absint( $commentWidth ); ?>"><small><?php echo esc_html( $this->desc ); ?></small></td></tr><tr valign="top"><td colspan="2"><hr /></td></tr>
+								<tr valign="top"><td colspan="<?php echo absint( $commentWidth ); ?>"><small><?php echo esc_html( $this->desc ); ?></small></td></tr><tr valign="top"><td colspan="2"><hr /></td></tr>
 		<?php
 	}
 
@@ -356,7 +400,7 @@ class DropdownOption extends Option {
 
 	function get() {
 		$value = get_option( $this->id, $this->std );
-        	if ( strtolower( $value ) == 'disabled' )
+					if ( strtolower( $value ) == 'disabled' )
 			return false;
 		return $value;
 	}
