@@ -77,6 +77,7 @@ are three types of Options available to create:
  1. Boolean Option
  2. Text Option
  3. Dropdown Option
+ 4. MediaOption
 
 ## 1. Boolean Option
 The simplest form of option...creates a true or false dropdown that can be used to turn features on or off.
@@ -111,6 +112,29 @@ Allows you to create a dropdown with custom values by passing the constructor an
    OptionsArray = an array containing the values for the dropdown menu
    DefaultIndex = an integer identifying the item in the array that is the default value; if not specified,
                   the default is 0.
+
+## 4. Media Option 
+Allows you to open a media library modal and get the URL for an item. If it's an image, a preview will display
+
+   new MediaOption(Name, Description, OptionID, Default )
+
+   Name = a human readable name for the option.
+   Description = a human readable description for the option. 
+   OptionID = a machine readable option identifier, cannot have spaces and must be unique
+   Default = a string as the default value for the option; if not specified, the default is ""
+
+## 5. Multi Option
+Allows you to create a multi-select input with custom values by passing the constructor an array of options. Saves the result as a serialized string.
+
+   new MultiOption(Name, Description, OptionID, OptionsArray, DefaultIndex)
+
+   Name = a human readable name for the option.
+   Description = a human readable description for the option. 
+   OptionID = a machine readable option identifier, cannot have spaces and must be unique
+   OptionsArray = an array containing the values for the dropdown menu
+   DefaultIndex = an integer identifying the item in the array that is the default value; if not specified,
+                  the default is 0.
+   
 
 ##
 ## Usage
