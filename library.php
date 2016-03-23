@@ -91,12 +91,10 @@ class CheezCapOption {
 }
 
 /**
- * Adds support for selecting images
- * from media library.
- *
- * @todo Ability to complete clear the field
- *
- * Class MediaOption
+ * Adds support for selecting any media libarary
+ * content. If image, the URL will be saved, otherwise
+ * the attachment Id will be saved in wp_options
+ * 
  */
 class CheezCapMediaOption extends CheezCapOption {
 	var $options;
