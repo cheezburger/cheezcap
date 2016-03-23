@@ -18,6 +18,11 @@ $multiple_checkboxes_labels = array '', 'One', 'Two', 'Three' );
 $cap = new CheezCap( array(
 		new CheezCapGroup( 'First Group', 'firstGroup',
 			array(
+				new CheezCapMediaOption(
+					'Default Icon',
+					'',
+					'default_color_icon'
+				),
 				new CheezCapBooleanOption(
 					'Simple Boolean Example',
 					'This will create a simple true/false switch with default of "true".',
@@ -154,10 +159,10 @@ function my_validation_cb( $key, $value ) {
 	switch ( $key ) {
 		case 'my-date':
 			// Perform date specific validation
-		  break;
+			break;
 		default:
-		  // Treat everything else as string
-		  $value = filter_var( $value, FILTER_SANITIZE_STRING );
+			// Treat everything else as string
+			$value = filter_var( $value, FILTER_SANITIZE_STRING );
 	}
 	return $value;
 }

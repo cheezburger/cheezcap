@@ -22,22 +22,22 @@ Automattic has a usually more maintained fork at http://github.com/automattic/ch
 1.  Copy the cheezcap folder into an appropriate location (maybe where you store your other shared plugins).
 2.  Add the following line to functions.php (if you don't have a functions.php, create one in your theme directory). Adjust the path as needed.
 <code>
-	require_once( WP_PLUGINS_DIR . '/cheezcap/cheezcap.php');
+   require_once( WP_PLUGINS_DIR . '/cheezcap/cheezcap.php');
 </code>
 3.  Use the included config-sample.php as a starting point to set up your options. Copy the modified version into your theme and include it.
 <code>
-	require_once( dirname( __FILE__ ) . '/cheezcap-config.php');
+   require_once( dirname( __FILE__ ) . '/cheezcap-config.php');
 </code>
 4.  Sprinkle theme options around your code, like this:
 <code>
-	global $cap;
-	if ($cap->my_boolean_option) {
-		// do stuff	
-	}
+   global $cap;
+   if ($cap->my_boolean_option) {
+      // do stuff 
+   }
 </code>
 4b.  Or use the helper function
 <code>
-	cheezcap_get_option( 'my_boolean_option', true, 'esc_html' );
+   cheezcap_get_option( 'my_boolean_option', true, 'esc_html' );
 </code>
 5.  Enjoy!
 
@@ -113,7 +113,7 @@ A simple text field that can be used for configurable text, etc.
    Default = a string as the default value for the option; if not specified, the default is ""
    UseTextArea = a boolean describing if the text option should be written as a text area; if not specified, the 
                  default is false;
-   ValidationCallback = optional custom validation callback (see example)			 
+   ValidationCallback = optional custom validation callback (see example)         
 
 ## 3. Dropdown Option
 Allows you to create a dropdown with custom values by passing the constructor an array of options
@@ -127,8 +127,8 @@ Allows you to create a dropdown with custom values by passing the constructor an
    DefaultIndex = an integer identifying the item in the array that is the default value; if not specified,
                   the default is 0.
    OptionsLabelsArray = if you want to separate the labels from values, pass in an array with the labels matching indexes in the
-   						OptionsArray
-   ValidationCallback = optional custom validation callback (see example)					
+                     OptionsArray
+   ValidationCallback = optional custom validation callback (see example)              
 
 ## 4. Multiple Checkboxes Option
 Allows you to create a multiple checkboxes option with custom values by passing the constructor an array of options
@@ -142,6 +142,16 @@ Allows you to create a multiple checkboxes option with custom values by passing 
    OptionsChecked = an array of keys in OptionsValues that should be checked (selected)
    ValidationCallback = optional custom validation callback (see example)
 
+## 5. Media Option
+Allows you to open a media library modal and get the URL for an item. If it's an image, a preview will display
+
+   new MediaOption(Name, Description, OptionID, Default )
+
+   Name = a human readable name for the option.
+   Description = a human readable description for the option. 
+   OptionID = a machine readable option identifier, cannot have spaces and must be unique
+   Default = a string as the default value for the option; if not specified, the default is ""
+
 ##
 ## Usage
 ##
@@ -149,4 +159,4 @@ Allows you to create a multiple checkboxes option with custom values by passing 
 CheezCap makes it easy to access the values that are set in your custom admin pages is easy.
 You can use the built-in helper function:
 
-	cheezcap_get_option( $option, $echo = false, $sanitize_callback = '' )
+   cheezcap_get_option( $option, $echo = false, $sanitize_callback = '' )
