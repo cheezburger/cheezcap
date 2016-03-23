@@ -118,8 +118,10 @@ class CheezCapMediaOption extends CheezCapOption {
 		$stdText = $this->std;
 		$stdTextOption = get_option( $this->id );
 
+		$val = (int) $stdTextOption;
+
 		// User chose an image
-		if ( ! empty( $stdTextOption ) && (int) $stdTextOption == 0 ) {
+		if ( $val == 0 ) {
 			$stdText = $stdTextOption;
 			$is_img = true;
 		}
@@ -127,16 +129,16 @@ class CheezCapMediaOption extends CheezCapOption {
 		// User chose a non-image file
 		else {
 
-			$stdText = false;
+			$stdText = $val;
 
 			// Get the attachment object
-			$attach = get_post( (int) $stdTextOption );
+			$attach = get_post( $val );
 			
 			// Extract filename
 			if ( isset( $attach->guid ) ) {
 				$guid = $attach->guid;
 				$arr = explode( '/', $guid );
-				$stdText = $arr[ count( $arr ) - 1 ];
+				$filename = $arr[ count( $arr ) - 1 ];
 			}
 		}	
 
@@ -175,8 +177,8 @@ class CheezCapMediaOption extends CheezCapOption {
 
 					<input type="hidden" id="<?php echo esc_attr( $this->id ); ?>" name="<?php echo esc_attr( $this->id ); ?>" value="<?php echo esc_attr( $stdText ); ?>" size="40" />
 					
-					<div id="<?php echo esc_attr( 'text_' . $this->id ); ?>" class='text-display <?php echo ( $is_img || $stdText == false ) ? 'hidden' : ''; ?>' >
-						<i class='dashicons dashicons-media-text'></i><span><?php echo esc_html( $stdText ); ?></span>
+					<div id="<?php echo esc_attr( 'text_' . $this->id ); ?>" class='text-display <?php echo ( $is_img ) ? 'hidden' : ''; ?>' >
+						<i class='dashicons dashicons-media-text'></i><span><?php echo esc_html( $filename ); ?></span>
 					</div>
 					
 					<img id="<?php echo esc_attr( 'img_'  . $this->id ); ?>" src="<?php echo ( $is_img ) ? esc_url( $stdText ) : ''; ?>" />
