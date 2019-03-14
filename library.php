@@ -90,6 +90,223 @@ class CheezCapOption {
 	}
 }
 
+/**
+ * Adds support for selecting any media libarary
+ * content. If image, the URL will be saved, otherwise
+ * the attachment Id will be saved in wp_options
+ * 
+ */
+class CheezCapMediaOption extends CheezCapOption {
+	var $options;
+
+	function __construct( $_name, $_desc, $_id, $_std = ''  ) {
+		parent::__construct( $_name, $_desc, $_id, $_std );
+	}
+
+	function write_html() {
+
+		// Pre-reqs for loading the WP media-upload modal
+		wp_enqueue_script( 'jquery' );
+		wp_enqueue_script( 'media-upload' );
+		wp_enqueue_script( 'thickbox' );
+		wp_enqueue_style( 'thickbox' );
+		wp_enqueue_media();
+
+		$is_img = false;
+
+		// Populate the default option or the saved one
+		$stdText = $this->std;
+		$stdTextOption = get_option( $this->id );
+
+		$val = (int) $stdTextOption;
+
+		// User chose an image
+		if ( $val == 0 ) {
+			$stdText = $stdTextOption;
+			$is_img = true;
+		}
+
+		// User chose a non-image file
+		else {
+
+			$stdText = $val;
+
+			// Get the attachment object
+			$attach = get_post( $val );
+			
+			// Extract filename
+			if ( isset( $attach->guid ) ) {
+				$guid = $attach->guid;
+				$arr = explode( '/', $guid );
+				$filename = $arr[ count( $arr ) - 1 ];
+			}
+		}	
+
+		?>
+
+		<style>
+			.media-label {
+				position: relative;
+			}
+
+			.delete-btn.button {
+				padding-top: 3px;
+				line-height: 1em;
+			}
+
+			.delete-btn > span {
+				line-height: initial;
+			}
+
+			.button.cap-media-btn {
+				margin-top: 10px;
+				display: block;
+			}
+
+			img,
+			.cap-media-btn {
+				width: 250px;
+				min-width: 150px;
+			}
+		</style>
+
+		<tr valign="top">
+			<th scope="row"><?php echo esc_html( $this->name ); ?></th>
+			<td>
+				<label class='media-label' for="<?php echo esc_attr( $this->id ); ?>">
+
+					<input type="hidden" id="<?php echo esc_attr( $this->id ); ?>" name="<?php echo esc_attr( $this->id ); ?>" value="<?php echo esc_attr( $stdText ); ?>" size="40" />
+					
+					<div id="<?php echo esc_attr( 'text_' . $this->id ); ?>" class='text-display <?php echo ( $is_img ) ? 'hidden' : ''; ?>' >
+						<i class='dashicons dashicons-media-text'></i><span><?php echo esc_html( $filename ); ?></span>
+					</div>
+					
+					<img id="<?php echo esc_attr( 'img_'  . $this->id ); ?>" src="<?php echo ( $is_img ) ? esc_url( $stdText ) : ''; ?>" />
+					
+					<input type="button" class='button button-primary cap-media-btn' id="<?php echo esc_attr( 'btn_' . $this->id ); ?>" value="Open Media Library" />
+					
+					<button class='delete-btn button button-default cap-media-btn <?php echo ( !empty( $stdText ) ) ? '' : 'hidden'; ?>' id='<?php echo esc_attr( 'delete_' . $this->id ); ?>'>Clear Item</button>
+				</label>
+			</td>
+		</tr>
+
+		<tr valign="top">
+			<td colspan=2>
+				<small><?php echo esc_html( $this->desc ); ?></small><hr />
+			</td>
+		</tr>
+
+		<script>
+		(function($) {
+			$( document ).ready( function() {
+
+				/*
+				 * Initialize the window object used to track which instance was changed
+				 */
+				if( typeof( window.cheezcap ) === 'undefined' ) {
+					window.cheezcap = { mediaOptCbDefined : null, optionId : null };
+				}
+
+				/* 
+				 * Register the watch for this instance
+				 */
+				$( '<?php echo esc_attr( '#btn_' . $this->id ); ?>' ).click( function() {
+
+					// Update the window object so the callback knows what to do
+					window.cheezcap.optionId = "<?php echo esc_attr( $this->id ); ?>";
+
+					tb_show( '<?php echo esc_html( $this->name ); ?>', 'media-upload.php?type=image&amp;TB_iframe=true');
+
+					return false;
+				});
+
+				/* 
+				 * Register our "send_to_editor" function if it isn't already
+				 */
+				if( window.cheezcap.mediaOptCbDefined === null ) {
+
+					// Make sure we don't redefine it
+					window.cheezcap.mediaOptCbDefined = true;
+
+					/**
+					 * Callback fired by thickbox to update the elements referenced
+					 * in the window.cheezcap object with the selected media item
+					 * 
+					 * @param  {obj} html - jQ object
+					 */
+					window.send_to_editor = function(html) {
+						var isImg, filename, value, imgUrl;
+						
+						isImg = true;
+
+						// Get the img url
+						value = $( 'img', html ).attr( 'src' );
+
+						// If it's not an img
+						if( typeof value === 'undefined' ) {
+							
+							isImg = false;
+
+							// Save the attachement Id
+							value = $(html).attr( 'rel' ).replace( 'attachment wp-att-', '' );
+							filename = $( html ).text();
+						}
+
+						// Update the actual value to be saved to wp_options
+						$( 'input#' + window.cheezcap.optionId  ).val( value );
+
+						// Show image preview and hide text display
+						if( isImg ) {
+							
+							$( '#img_'  + window.cheezcap.optionId ).attr( 'src', value ).show();
+							$( '#text_' + window.cheezcap.optionId + ' span' ).text( '' ).parent().addClass( 'hidden' );
+						}
+
+						// Show the text display and hide imaage element
+						else {
+
+							$( '#img_'  + window.cheezcap.optionId ).hide();
+							$( '#text_' + window.cheezcap.optionId + ' span' ).text( filename ).parent().removeClass( 'hidden' );
+						}
+
+						// Show the delete button
+						$( '<?php echo '#delete_' . $this->id; ?>' ).removeClass( 'hidden' );
+
+						tb_remove();
+					}
+				}
+
+				/*
+				 * Remove the selected media item
+				 */
+				$( '<?php echo esc_attr( '#delete_' . $this->id ); ?>' ).click( function() {
+
+					// Clear the image, the input field and hide the delete button
+					$( '<?php echo '#img_' . $this->id; ?>' ).prop( 'src', '' );
+					$( '<?php echo 'input#' . $this->id; ?>' ).prop( 'value', '' ).hide();
+					$( '<?php echo '#text_' . $this->id . ' span'; ?>' ).text( '' ).parent().addClass( 'hidden' );
+					$( '<?php echo '#delete_' . $this->id; ?>' ).addClass( 'hidden' );
+					return false;
+				}); 
+			});
+		})(jQuery);
+
+		</script>
+	<?php
+	}
+
+	function save( $value ) {
+		parent::save( $value );
+	}
+
+	function get() {
+		$value = get_option( $this->id, $this->std );
+		if ( strtolower( $value ) == 'disabled' )
+			return false;
+		return $value;
+	}
+}
+
 class CheezCapTextOption extends CheezCapOption {
 	var $useTextArea;
 
